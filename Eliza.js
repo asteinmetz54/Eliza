@@ -70,7 +70,7 @@ dict.load(fs.readdirSync('dictionaries'));
 //this is an asynchronous readline so timer can run.
 rl.question('I\'m Eliza. What is your name? ', (answer) => {
   name = answer;
-  greeting = dict.entry['opener'][Math.floor(Math.random() * dict.entry['opener'].length)+1];
+  greeting = dict.entry['opener'][Math.floor(Math.random() * dict.entry['opener'].length)];
   greeting = greeting.replace("<name>", name);
   console.log(greeting);
   rl.close();
