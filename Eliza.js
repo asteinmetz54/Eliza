@@ -62,6 +62,7 @@ dict = new Dictionary();
 var quit = false;
 var name = "";
 
+
 //setup, don't care about async
 //get all file names in dir dictionaries
 dict.load(fs.readdirSync('dictionaries'));
@@ -73,5 +74,14 @@ rl.question('I\'m Eliza. What is your name? ', (answer) => {
   greeting = dict.entry['opener'][Math.floor(Math.random() * dict.entry['opener'].length)];
   greeting = greeting.replace("<name>", name);
   console.log(greeting);
-  rl.close();
+    
+    
+    //timer to ask for coffee every 3 minutes - still needs to know when user responds with maybe
+    coffee = dict.entry['coffee'][Math.floor(Math.random()*dict.entry['coffee'].length)];
+    coffee = coffee.replace("<name>", name);
+    var coffeeTimer = setInterval(function(){
+        console.log(coffee);
+    }, 180000);
+    
+  //rl.close();
 });
