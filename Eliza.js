@@ -17,8 +17,7 @@ const rl = readline.createInterface({
 });
 
 //Dictionary object for loading, updating and accessing Eliza's knowledge.
-var Dictionary = function()
-{
+var Dictionary = function(){
     this.ownedFilenames = [];
     this.entry = {};
     
@@ -55,33 +54,79 @@ var Dictionary = function()
 	};
 }
 
+//Timer object for Eliza to prompt users
+var Timer = function(){
+	this.start = function(inputTimer){
+		inputTimer = setTimeout(function(){
+		var promptUser = dict.entry['noInput'][Math.floor(Math.random()*dict.entry['noInput'].length)];
+		promptUser = promptUser.replace("<name>", name);
+		console.log(promptUser)
+		}, 20000);
+	};
+	this.stop = function(inputTimer)
+	{
+		clearTimeout(inputTimer);
+	};
+}
+
+var parse = function(userInputString)
+{
+	return "placeholder Eliza response";
+}
 //Start Eliza
 
-//create our dictionary
+//initialize variables
 dict = new Dictionary();
+timer = new Timer();
 var quit = false;
 var name = "";
+var coffee = "";
+var coffeeTimer;
+var promptTimer;
+var askedForCoffee = false;
 
-
-//setup, don't care about async
-//get all file names in dir dictionaries
+//synchronous load of dictionary
 dict.load(fs.readdirSync('dictionaries'));
 
-//probably set timers here???
-//this is an asynchronous readline so timer can run.
-rl.question('I\'m Eliza. What is your name? ', (answer) => {
+//prompt for name
+rl.question('I\'m Eliza. What is your name?\n', (answer) => {
   name = answer;
+  
+  //generate greeting / first question.
   greeting = dict.entry['opener'][Math.floor(Math.random() * dict.entry['opener'].length)];
   greeting = greeting.replace("<name>", name);
-  console.log(greeting);
     
-    
-    //timer to ask for coffee every 3 minutes - still needs to know when user responds with maybe
-    coffee = dict.entry['coffee'][Math.floor(Math.random()*dict.entry['coffee'].length)];
-    coffee = coffee.replace("<name>", name);
-    var coffeeTimer = setInterval(function(){
-        console.log(coffee);
+	//start coffee interval timer
+	coffeeTimer = setInterval(function(){
+		askedForCoffee = true;
+		coffee = dict.entry['coffee'][Math.floor(Math.random()*dict.entry['coffee'].length)];
+		coffee = coffee.replace("<name>", name);
+		console.log(coffee);
     }, 180000);
     
-  //rl.close();
+	//enter the conversation loop
+	converse(greeting);
 });
+
+var converse = function(elizaSays)//the main logic loop
+{
+	//timer.start(promptTimer)
+	rl.question(elizaSays + '\n', (answer) => {
+		timer.stop(promptTimer);
+		if(answer == 'quit'){
+			console.log("quitting...");
+			clearInterval(coffeeTimer);
+			rl.close();
+		}
+		else if(answer == 'maybe' && askedForCoffee == true){
+			console.log("Okay, no cream...");
+			clearInterval(coffeeTimer);
+			converse("Now, what were we talking about?");
+		}
+		else{
+			askedForCoffee= false;
+			elizaSays = parse(answer);
+			converse(elizaSays)
+		}
+	});
+}
