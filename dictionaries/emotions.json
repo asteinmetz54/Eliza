@@ -7,5 +7,8 @@
 },
 
 {"key":"sad", 
- "value":["1","2","3","4"]}
+ "value":[	"What has you down in the dumps <name>?",
+ 			"That's a shame your having a bad day <name>!",
+			 "That's a bummer <name>, want to talk about it?",
+			 "Is there anything I can do to cheer you up <name>?"]}
 ]

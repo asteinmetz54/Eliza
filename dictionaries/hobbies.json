@@ -1,7 +1,22 @@
 [
-{"key":"football", "value":["ba","bs","bd","bf"]},
-{"key":"baseball", "value":["b1","b2","b3","b4"]},
-{"key":"reading", "value":["b1","b2","b3","b4"]},
-{"key":"read", "value":["b1","b2","b3","b4"]},
-{"key":"baseball", "value":["b1","b2","b3","b4"]}
+{"key":"football", 
+    "value":[   "AHHHH FOOTBALLL!!!!!",
+                "I love football, nothing better than the old pigskin",
+                "I have never played, have you ever played?",
+                "Can you teach me to football <name>?"]},
+{"key":"baseball", 
+    "value":[   "Oh baseball, America's pastime......",
+                "Baseball is great, whose your favorite player?",
+                "World Series is always fun to watch, what was your favorite series?",
+                "Have you ever played <name>? What is your favorite position?"]},
+{"key":"reading", 
+    "value":[   "I'm a bookworm, favorite genre is sci-fi. What about yours?",
+                "Favorite is cuddling up with a nice book on a rainy day....",
+                "My favorite way to read is to actually listen to audiobook, ever listend to one?",
+                "I used to struggle with reading, are you a fast reader <name>?"]},
+{"key":"read", 
+    "value":[   "Are you a fast reader?",
+                "When did you start reading?",
+                "Can you read text that is mirrored?",
+                "Can you read this? Aoccdrnig to rscheearch at Cmabrigde Uinervtisy, it deosn't mttaer in waht oredr the ltteers in a wrod are, the olny iprmoetnt tihng is taht the frist and lsat ltteer be at the rghit pclae. The rset can be a toatl mses and you can sitll raed it wouthit a porbelm. Tihs is bcuseae the huamn mnid deos not raed ervey lteter by istlef, but the wrod as a wlohe."]}
 ]
