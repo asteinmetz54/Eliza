@@ -18,6 +18,10 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
+rl.on('line', (input) => {
+  console.log('something was typed');
+});
+
 //Dictionary object for loading, updating and accessing Eliza's knowledge.
 var Dictionary = function(){
     this.ownedFilenames = [];
@@ -44,9 +48,9 @@ var Dictionary = function(){
             temp = temp.concat(JSONarray);
             dict.ownedFilenames.push(fileName);
 			dict.updateDictionary(temp);
-			var smrt = "I just got smarter";
+			var smrt = "I just got smarter\n";
 			console.log(smrt);
-			logReport = smrt + "\n";
+			logReport += smrt;
         });
     };
 	this.updateDictionary = function(JSONarray)
@@ -68,7 +72,7 @@ var Timer = function(){
 			var promptUser = chooseResponse('!noInput');
 			promptUser = promptUser.replace("<name>", name);
 			console.log(promptUser);
-			logReport = promptUser + "\n";
+			logReport += promptUser + "\n";
 		}, 20000);
 	};
 	this.stop = function(inputTimer)
@@ -124,6 +128,7 @@ var chooseResponse = function(key)
 }
 
 
+
 //Start Eliza
 
 //initialize variables
@@ -137,16 +142,14 @@ var promptTimer;
 var askedForCoffee = false;
 
 
-//log input commands to string
-rl.on('line', (input) => {
-	logReport = input + "\n";
-});
+
 
 //synchronous load of dictionary
 dict.load(fs.readdirSync('dictionaries'));
 
 //prompt for name
 rl.question('I\'m Eliza. What is your name?\n', (answer) => {
+	logReport += 'I\'m Eliza. What is your name?\n';
   name = answer;
   
   //generate greeting / first question.
@@ -159,11 +162,14 @@ rl.question('I\'m Eliza. What is your name?\n', (answer) => {
 		coffee = dict.entry['coffee'][Math.floor(Math.random()*dict.entry['coffee'].length)];
 		coffee = coffee.replace("<name>", name);
 		console.log(coffee);
-		logReport.concat = coffee + "\n";
+		logReport += coffee + "\n";
     }, 180000);
     
+	var greet = greeting.toString();
+	logReport += greet + '\n';
 	//enter the conversation loop
 	converse(greeting);
+	
 });
 
 var converse = function(elizaSays)//the main logic loop
@@ -173,22 +179,27 @@ var converse = function(elizaSays)//the main logic loop
 		timer.stop(promptTimer);
 		if(answer == 'quit'){
 			console.log("quitting...");
-			logReport.concat = "quitting...";	
+			logReport += "quitting...";	
 			clearInterval(coffeeTimer);
 			rl.close();
 			process.exit();
 		}
 		else if(answer == 'maybe' && askedForCoffee == true){
 			console.log("Okay, no cream...");
-			logReport.concat = "Okay, no cream...\n";
+			logReport += "Okay, no cream...\n";
 			clearInterval(coffeeTimer);
 			converse("Now, what were we talking about?");
+			logReport += "Now, what were we talking about?";
 		}
 		else if(answer == 'log'){
-			var logFileName = '<'+ name + '>_<'+ new Date().toTimeString() + '>.log';
+			var getDate = new Date();
+			var date = getDate.toString();
+			date = date.replace(/:/g,'_');
+			console.log(date);
+			var logFileName = name + '_' + date + '.log';
 			fs.writeFile(logFileName, logReport, (err) =>{
 				if (err)
-					console.log('Error writing log file' + logReport);
+					console.log('Error writing log file');
 				else
 					console.log('File successfully saved');
 			})
