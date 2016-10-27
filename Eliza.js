@@ -50,6 +50,9 @@ var Dictionary = function(){
 		for(var i = 0; i < JSONarray.length; i++)
 		{
 			this.entry[JSONarray[i].key] = JSONarray[i].value;
+			//decorate the objects
+			this.entry[JSONarray[i].key].responseArray = [];
+			this.entry[JSONarray[i].key].numberOfResponses = JSONarray[i].value.length;
 		}
 	};
 }
@@ -57,11 +60,11 @@ var Dictionary = function(){
 //Timer object for Eliza to prompt users
 var Timer = function(){
 	this.start = function(inputTimer){
-		inputTimer = setTimeout(function(){
-		var promptUser = dict.entry['noInput'][Math.floor(Math.random()*dict.entry['noInput'].length)];
+		inputTimer = setInterval(function(){//////////////////!!!!!!!!!!!!!!
+		var promptUser = chooseResponse('!noInput');
 		promptUser = promptUser.replace("<name>", name);
 		console.log(promptUser)
-		}, 20000);
+		}, 8000);
 	};
 	this.stop = function(inputTimer)
 	{
@@ -69,9 +72,50 @@ var Timer = function(){
 	};
 }
 
-var parse = function(userInputString)
+//so far we can get random responses to keywords
+//we need to implement no repeating 
+var parse = function(input)
 {
-	return "placeholder Eliza response";
+	//strip punctuation
+	input = input.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+	//remove excess spaces
+	input = input.replace(/\s{2,}/g," ");
+	//split into an array of words
+	words = input.split(" ");
+	//iterate over words and search dictionary
+	for(var i = 0; i < words.length; i++){
+		if(dict.entry[words[i]]){
+			return chooseResponse(words[i]);
+			//return dict.entry[words[i]][Math.floor(Math.random() * dict.entry[words[i]].length)];
+		}
+	}
+	return chooseResponse('!stumped');
+}
+var chooseResponse = function(key)
+{
+	var response = "";
+	//find an unused response for this keyword
+	do{
+		index = Math.floor(Math.random() * dict.entry[key].length)
+	}
+	while(dict.entry[key].responseArray.includes(index));
+	
+	response = dict.entry[key][index];
+	
+	//add chosen response to the response array
+	dict.entry[key].responseArray.push(index);
+	//check if all responses used
+	if(dict.entry[key].responseArray.length == dict.entry[key].numberOfResponses)
+	{
+		dict.entry[key].responseArray = [];
+		dict.entry[key].responseArray.push(index);//handle a corner case
+	}
+	
+	if(response.includes("<name>")){
+		response = response.replace("<name>", name);
+	}
+	
+	return response
 }
 //Start Eliza
 
@@ -112,16 +156,21 @@ var converse = function(elizaSays)//the main logic loop
 {
 	//timer.start(promptTimer)
 	rl.question(elizaSays + '\n', (answer) => {
-		timer.stop(promptTimer);
+		//timer.stop(promptTimer);
 		if(answer == 'quit'){
 			console.log("quitting...");
 			clearInterval(coffeeTimer);
 			rl.close();
+			process.exit();
 		}
 		else if(answer == 'maybe' && askedForCoffee == true){
 			console.log("Okay, no cream...");
 			clearInterval(coffeeTimer);
 			converse("Now, what were we talking about?");
+		}
+		else if(answer == 'log'){
+			//console.log(rl.history)
+			//converse("Now, what were we talking about?");
 		}
 		else{
 			askedForCoffee= false;

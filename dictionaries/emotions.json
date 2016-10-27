@@ -1,0 +1,11 @@
+[
+{"key":"happy", 
+ "value":["It's nice when things are going well.",
+	"Why are you happy?",
+	"What is making you so happy?",
+	"That's good to hear, <name>. Now, why don't you calm down a little?"]
+},
+
+{"key":"sad", 
+ "value":["1","2","3","4"]}
+]

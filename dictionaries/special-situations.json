@@ -1,0 +1,32 @@
+[
+{"key":"!noInput",
+ "value":["What's the matter, <name>? Cat got your tongue?",
+	"I certainly thought you would have more to say than that, <name>",
+	"Have I rendered you speechless, <name>?",
+	"C'mon then, spit it out, <name>!"]
+},
+
+{"key":"coffee", 
+ "value":["Want to get some coffee at Dunkin <name>?",
+	"<name>, want to get some coffee at Starbucks?",
+	"<name>, do we dare meetup at Peet's?",
+	"Hey <name>, would you want to be a hipster and meetup for tea?"]
+},
+
+{"key":"opener", 
+ "value":["How are you today, <name>?",
+	"What's on your mind, <name> ?",
+	"You look blue, <name>. Would you like to talk about it?",
+	"What would you like to talk about, <name>?",
+	"Is something troubling you <name>, would you like to talk about it?",
+	"You seem happy <name>, why is that?"]},
+
+{"key":"!stumped",
+ "value":["You've left me speechless!",
+	"I just don't know what to say.",
+	"Are you hearing yourself right now?",
+	"I'm not sure I understand.",
+	"Perhaps you should clarify.",
+	"That was about as clear as mud.",
+	"Thank you for that......insight."]}
+]
