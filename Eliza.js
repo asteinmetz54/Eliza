@@ -6,6 +6,8 @@
 var fs = require('fs');
 var events = require('events');
 var eventEmitter = new events.EventEmitter();
+var logReport;
+
 //Define events
 //eventEmiter.on('getInput');
 //end Define events
@@ -42,7 +44,9 @@ var Dictionary = function(){
             temp = temp.concat(JSONarray);
             dict.ownedFilenames.push(fileName);
 			dict.updateDictionary(temp);
-			console.log("I just got smarter!");
+			var smrt = "I just got smarter";
+			console.log(smrt);
+			logReport = smrt + "\n";
         });
     };
 	this.updateDictionary = function(JSONarray)
@@ -60,11 +64,12 @@ var Dictionary = function(){
 //Timer object for Eliza to prompt users
 var Timer = function(){
 	this.start = function(inputTimer){
-		inputTimer = setInterval(function(){//////////////////!!!!!!!!!!!!!!
-		var promptUser = chooseResponse('!noInput');
-		promptUser = promptUser.replace("<name>", name);
-		console.log(promptUser)
-		}, 8000);
+		inputTimer = setInterval(function(){
+			var promptUser = chooseResponse('!noInput');
+			promptUser = promptUser.replace("<name>", name);
+			console.log(promptUser);
+			logReport = promptUser + "\n";
+		}, 20000);
 	};
 	this.stop = function(inputTimer)
 	{
@@ -117,6 +122,8 @@ var chooseResponse = function(key)
 	
 	return response
 }
+
+
 //Start Eliza
 
 //initialize variables
@@ -128,6 +135,12 @@ var coffee = "";
 var coffeeTimer;
 var promptTimer;
 var askedForCoffee = false;
+
+
+//log input commands to string
+rl.on('line', (input) => {
+	logReport = input + "\n";
+});
 
 //synchronous load of dictionary
 dict.load(fs.readdirSync('dictionaries'));
@@ -146,6 +159,7 @@ rl.question('I\'m Eliza. What is your name?\n', (answer) => {
 		coffee = dict.entry['coffee'][Math.floor(Math.random()*dict.entry['coffee'].length)];
 		coffee = coffee.replace("<name>", name);
 		console.log(coffee);
+		logReport.concat = coffee + "\n";
     }, 180000);
     
 	//enter the conversation loop
@@ -154,23 +168,30 @@ rl.question('I\'m Eliza. What is your name?\n', (answer) => {
 
 var converse = function(elizaSays)//the main logic loop
 {
-	//timer.start(promptTimer)
+	timer.start(promptTimer)
 	rl.question(elizaSays + '\n', (answer) => {
-		//timer.stop(promptTimer);
+		timer.stop(promptTimer);
 		if(answer == 'quit'){
 			console.log("quitting...");
+			logReport.concat = "quitting...";	
 			clearInterval(coffeeTimer);
 			rl.close();
 			process.exit();
 		}
 		else if(answer == 'maybe' && askedForCoffee == true){
 			console.log("Okay, no cream...");
+			logReport.concat = "Okay, no cream...\n";
 			clearInterval(coffeeTimer);
 			converse("Now, what were we talking about?");
 		}
 		else if(answer == 'log'){
-			//console.log(rl.history)
-			//converse("Now, what were we talking about?");
+			var logFileName = '<'+ name + '>_<'+ new Date().toTimeString() + '>.log';
+			fs.writeFile(logFileName, logReport, (err) =>{
+				if (err)
+					console.log('Error writing log file' + logReport);
+				else
+					console.log('File successfully saved');
+			})
 		}
 		else{
 			askedForCoffee= false;
