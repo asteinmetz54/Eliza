@@ -6,7 +6,7 @@
 var fs = require('fs');
 var events = require('events');
 var eventEmitter = new events.EventEmitter();
-var logReport;
+var logReport='';
 
 //Define events
 //eventEmiter.on('getInput');

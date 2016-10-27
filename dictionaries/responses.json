@@ -1,0 +1,18 @@
+[
+    {"key": "thank", 
+        "value":[   "You're welcome!",
+	                "My pleasure <name>!",
+	                "No thank you <name>!",
+	                "Anything for a friend!"]
+    },
+
+    {
+        "key": "welcome",
+            "value":[
+                "You're the best <name>!",
+                "Has anyone told you that you are amazing?",
+                "You shouldn't have!",
+                "What would I do without you <name>?"
+            ]
+    }
+]
