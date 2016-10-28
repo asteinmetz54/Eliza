@@ -5,12 +5,14 @@
 
 var fs = require('fs');
 var events = require('events');
-var eventEmitter = new events.EventEmitter();
 var logReport='';
-
-//Define events
-//eventEmiter.on('getInput');
-//end Define events
+fs.watch("dictionaries/", function(e, fn){
+	if(e == 'rename'){
+		console.log("event type: " + e + "  file name:" + fn);
+		dict.emit('fileChange', fn);
+	}
+	
+});
 
 const readline = require('readline');
 const rl = readline.createInterface({
@@ -22,10 +24,13 @@ rl.on('line', (input) => {
   console.log('something was typed');
 });
 
+var log = [];
+
 //Dictionary object for loading, updating and accessing Eliza's knowledge.
 var Dictionary = function(){
     this.ownedFilenames = [];
     this.entry = {};
+	events.EventEmitter.call(this);
     
     this.load = function(filesList)
     {
@@ -51,42 +56,41 @@ var Dictionary = function(){
 			var smrt = "I just got smarter\n";
 			console.log(smrt);
 			logReport += smrt;
+			converse("Now, what were we talking about?");//gets us back in the event loop		
         });
     };
 	this.updateDictionary = function(JSONarray)
 	{
 		for(var i = 0; i < JSONarray.length; i++)
 		{
-			this.entry[JSONarray[i].key] = JSONarray[i].value;
-			//decorate the objects
-			this.entry[JSONarray[i].key].responseArray = [];
-			this.entry[JSONarray[i].key].numberOfResponses = JSONarray[i].value.length;
+			//now we can link similar keys to the same response.
+			//i.e. read vs reading, talk vs talking.
+			if(this.entry[JSONarray[i].key] == undefined){
+				multiKeyFix = [];
+			 if(typeof(JSONarray[i].key) == 'string')
+				 multiKeyFix.push(JSONarray[i].key)
+			 else
+				 multiKeyFix = JSONarray[i].key;
+			 for(var j = 0; j < multiKeyFix.length; j++)
+			 {
+				this.entry[multiKeyFix[j]] = JSONarray[i].value;
+				//decorate the objects
+				this.entry[multiKeyFix[j]].responseArray = [];
+				this.entry[multiKeyFix[j]].numberOfResponses = JSONarray[i].value.length;
+			 }
+			multiKeyFix = [];
+			}
 		}
 	};
 }
-
-//Timer object for Eliza to prompt users
-var Timer = function(){
-	this.start = function(inputTimer){
-		inputTimer = setInterval(function(){
-			var promptUser = chooseResponse('!noInput');
-			promptUser = promptUser.replace("<name>", name);
-			console.log(promptUser);
-			logReport += promptUser + "\n";
-		}, 20000);
-	};
-	this.stop = function(inputTimer)
-	{
-		clearTimeout(inputTimer);
-	};
-}
-
+//make that custom emitter
+Dictionary.prototype.__proto__ = require('events').EventEmitter.prototype;
 //so far we can get random responses to keywords
 //we need to implement no repeating 
 var parse = function(input)
 {
 	//strip punctuation
-	input = input.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+	input = input.replace(/[.,\/#!$?%\^&\*;:{}=\-_`~()]/g,"");
 	//remove excess spaces
 	input = input.replace(/\s{2,}/g," ");
 	//split into an array of words
@@ -95,7 +99,6 @@ var parse = function(input)
 	for(var i = 0; i < words.length; i++){
 		if(dict.entry[words[i]]){
 			return chooseResponse(words[i]);
-			//return dict.entry[words[i]][Math.floor(Math.random() * dict.entry[words[i]].length)];
 		}
 	}
 	return chooseResponse('!stumped');
@@ -133,7 +136,9 @@ var chooseResponse = function(key)
 
 //initialize variables
 dict = new Dictionary();
-timer = new Timer();
+dict.on('fileChange', function(fn){
+	dict.append(fn);
+});
 var quit = false;
 var name = "";
 var coffee = "";
@@ -149,24 +154,26 @@ dict.load(fs.readdirSync('dictionaries'));
 
 //prompt for name
 rl.question('I\'m Eliza. What is your name?\n', (answer) => {
-	logReport += 'I\'m Eliza. What is your name?\n';
+	logReport += 'I\'m Eliza. What is your name?';
+	logReport += '\r\n';
   name = answer;
   
   //generate greeting / first question.
-  greeting = dict.entry['opener'][Math.floor(Math.random() * dict.entry['opener'].length)];
+  greeting = chooseResponse('opener');//dict.entry['opener'][Math.floor(Math.random() * dict.entry['opener'].length)];
   greeting = greeting.replace("<name>", name);
     
 	//start coffee interval timer
 	coffeeTimer = setInterval(function(){
 		askedForCoffee = true;
-		coffee = dict.entry['coffee'][Math.floor(Math.random()*dict.entry['coffee'].length)];
+		coffee = chooseResponse('coffee');//dict.entry['coffee'][Math.floor(Math.random()*dict.entry['coffee'].length)];
 		coffee = coffee.replace("<name>", name);
 		console.log(coffee);
-		logReport += coffee + "\n";
+		logReport += coffee + "\r\n";
     }, 180000);
     
-	var greet = greeting.toString();
-	logReport += greet + '\n';
+	//var greet = greeting.toString();
+	//logReport += greet;
+	//logReport += '\n'
 	//enter the conversation loop
 	converse(greeting);
 	
@@ -174,9 +181,19 @@ rl.question('I\'m Eliza. What is your name?\n', (answer) => {
 
 var converse = function(elizaSays)//the main logic loop
 {
-	timer.start(promptTimer)
+	logReport += elizaSays;
+	logReport += '\r\n';
+	promptTimer = setTimeout(function(){
+			var promptUser = chooseResponse('!noInput');
+			promptUser = promptUser.replace("<name>", name);
+			console.log(promptUser);
+			logReport += promptUser + "\n";
+		}, 20000);
+		
 	rl.question(elizaSays + '\n', (answer) => {
-		timer.stop(promptTimer);
+		clearTimeout(promptTimer);
+		logReport += answer;
+		logReport += '\r\n';
 		if(answer == 'quit'){
 			console.log("quitting...");
 			logReport += "quitting...";	
@@ -197,12 +214,13 @@ var converse = function(elizaSays)//the main logic loop
 			date = date.replace(/:/g,'_');
 			console.log(date);
 			var logFileName = name + '_' + date + '.log';
-			fs.writeFile(logFileName, logReport, (err) =>{
+			fs.appendFile(logFileName, logReport, (err) =>{
 				if (err)
 					console.log('Error writing log file');
 				else
 					console.log('File successfully saved');
-			})
+			});
+			converse("Now, what were we talking about?");
 		}
 		else{
 			askedForCoffee= false;
