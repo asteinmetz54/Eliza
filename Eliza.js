@@ -1,8 +1,3 @@
-/****************************************************************************************
-*  use this formula to get a random entry                                               *
-*  console.log(this.entry['red'][Math.floor(Math.random() * this.entry['red'].length)]);*
-*****************************************************************************************/
-
 var fs = require('fs');
 var events = require('events');
 
@@ -12,7 +7,6 @@ var logReport='';
 //check for changes to dictionary
 fs.watch("dictionaries/", function(e, fn){
 	if(e == 'rename'){
-		console.log("event type: " + e + "  file name:" + fn);
 		dict.emit('fileChange', fn);
 	}
 });
@@ -52,14 +46,20 @@ var Dictionary = function(){
         var JSONarray;
         fs.readFile("dictionaries/" + fileName, function(err, data)
         {
-			var temp = [];
-            JSONarray = JSON.parse(data);
-            temp = temp.concat(JSONarray);
-            dict.ownedFilenames.push(fileName);
-			dict.updateDictionary(temp);
-			var smrt = "I just got smarter\n";
-			console.log(smrt);
-			logReport += smrt;
+			if(err){
+				console.log("You shouldn't try to remove my knowledge");
+			}
+			else{
+				var temp = [];
+				JSONarray = JSON.parse(data);
+				temp = temp.concat(JSONarray);
+				dict.ownedFilenames.push(fileName);
+				dict.updateDictionary(temp);
+				var smrt = "I just got smarter\n";
+				console.log(smrt);
+				logReport += smrt;
+			}
+				
 			converse("Now, what were we talking about?");//gets us back in the event loop		
         });
     };
@@ -171,7 +171,8 @@ rl.question('I\'m Eliza. What is your name?\n', (answer) => {
 		coffee = chooseResponse('coffee');//dict.entry['coffee'][Math.floor(Math.random()*dict.entry['coffee'].length)];
 		coffee = coffee.replace("<name>", name);
 		console.log(coffee);
-		logReport += coffee + "\r\n";
+		logReport += coffee;
+		logReport += '\r\n';
     }, 180000);
     
 	//enter the conversation loop
@@ -190,7 +191,8 @@ var converse = function(elizaSays)
 			var promptUser = chooseResponse('!noInput');
 			promptUser = promptUser.replace("<name>", name);
 			console.log(promptUser);
-			logReport += promptUser + "\n";
+			logReport += promptUser;
+			logReport += '\r\n';
 		}, 20000);
 		
 	rl.question(elizaSays + '\n', (answer) => {
@@ -205,11 +207,10 @@ var converse = function(elizaSays)
 			process.exit();
 		}
 		else if(answer == 'maybe' && askedForCoffee == true){
-			console.log("Okay, no cream...");
-			logReport += "Okay, no cream...\n";
 			clearInterval(coffeeTimer);
-			converse("Now, what were we talking about?");
 			logReport += "Now, what were we talking about?";
+			logReport += '\r\n';
+			converse("Now, what were we talking about?");
 		}
 		else if(answer == 'log'){
 			var getDate = new Date();
