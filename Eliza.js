@@ -5,15 +5,19 @@
 
 var fs = require('fs');
 var events = require('events');
+
+//all input and output saved to string
 var logReport='';
+
+//check for changes to dictionary
 fs.watch("dictionaries/", function(e, fn){
 	if(e == 'rename'){
 		console.log("event type: " + e + "  file name:" + fn);
 		dict.emit('fileChange', fn);
 	}
-	
 });
 
+//setup interface for readline of user input and output to console
 const readline = require('readline');
 const rl = readline.createInterface({
   input: process.stdin,
@@ -83,12 +87,12 @@ var Dictionary = function(){
 		}
 	};
 }
+
 //make that custom emitter
 Dictionary.prototype.__proto__ = require('events').EventEmitter.prototype;
-//so far we can get random responses to keywords
-//we need to implement no repeating 
-var parse = function(input)
-{
+
+//parse input from user
+var parse = function(input){
 	//strip punctuation
 	input = input.replace(/[.,\/#!$?%\^&\*;:{}=\-_`~()]/g,"");
 	//remove excess spaces
@@ -103,12 +107,14 @@ var parse = function(input)
 	}
 	return chooseResponse('!stumped');
 }
-var chooseResponse = function(key)
-{
+
+//choose a response based off key passed
+var chooseResponse = function(key){
 	var response = "";
+	var chosenResponse = [];
 	//find an unused response for this keyword
 	do{
-		index = Math.floor(Math.random() * dict.entry[key].length)
+		index = Math.floor(Math.random() * dict.entry[key].length);
 	}
 	while(dict.entry[key].responseArray.includes(index));
 	
@@ -146,9 +152,6 @@ var coffeeTimer;
 var promptTimer;
 var askedForCoffee = false;
 
-
-
-
 //synchronous load of dictionary
 dict.load(fs.readdirSync('dictionaries'));
 
@@ -177,10 +180,13 @@ rl.question('I\'m Eliza. What is your name?\n', (answer) => {
 	
 });
 
-var converse = function(elizaSays)//the main logic loop
+//the main logic loop
+var converse = function(elizaSays)
 {
 	logReport += elizaSays;
 	logReport += '\r\n';
+
+	//prompt user with messages if inactive for 20 seconds
 	promptTimer = setTimeout(function(){
 			var promptUser = chooseResponse('!noInput');
 			promptUser = promptUser.replace("<name>", name);
