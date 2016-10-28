@@ -10,5 +10,10 @@
  "value":[	"What has you down in the dumps <name>?",
  			"That's a shame your having a bad day <name>!",
 			 "That's a bummer <name>, want to talk about it?",
-			 "Is there anything I can do to cheer you up <name>?"]}
+			 "Is there anything I can do to cheer you up <name>?"]},
+{"key":"excited", "value":["Is something special happening?",
+	"Why are you excited?",
+	"That's great to hear!",
+	"What makes you excited?",
+	"Really? Why?"]}
 ]

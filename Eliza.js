@@ -1,8 +1,3 @@
-/****************************************************************************************
-*  use this formula to get a random entry                                               *
-*  console.log(this.entry['red'][Math.floor(Math.random() * this.entry['red'].length)]);*
-*****************************************************************************************/
-
 var fs = require('fs');
 var events = require('events');
 
@@ -12,7 +7,6 @@ var logReport='';
 //check for changes to dictionary
 fs.watch("dictionaries/", function(e, fn){
 	if(e == 'rename'){
-		console.log("event type: " + e + "  file name:" + fn);
 		dict.emit('fileChange', fn);
 	}
 });
@@ -52,14 +46,20 @@ var Dictionary = function(){
         var JSONarray;
         fs.readFile("dictionaries/" + fileName, function(err, data)
         {
-			var temp = [];
-            JSONarray = JSON.parse(data);
-            temp = temp.concat(JSONarray);
-            dict.ownedFilenames.push(fileName);
-			dict.updateDictionary(temp);
-			var smrt = "I just got smarter\n";
-			console.log(smrt);
-			logReport += smrt;
+			if(err){
+				console.log("You shouldn't try to remove my knowledge");
+			}
+			else{
+				var temp = [];
+				JSONarray = JSON.parse(data);
+				temp = temp.concat(JSONarray);
+				dict.ownedFilenames.push(fileName);
+				dict.updateDictionary(temp);
+				var smrt = "I just got smarter\n";
+				console.log(smrt);
+				logReport += smrt;
+			}
+				
 			converse("Now, what were we talking about?");//gets us back in the event loop		
         });
     };
