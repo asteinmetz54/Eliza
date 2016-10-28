@@ -168,12 +168,10 @@ rl.question('I\'m Eliza. What is your name?\n', (answer) => {
 		coffee = chooseResponse('coffee');//dict.entry['coffee'][Math.floor(Math.random()*dict.entry['coffee'].length)];
 		coffee = coffee.replace("<name>", name);
 		console.log(coffee);
-		logReport += coffee + "\r\n";
+		logReport += coffee;
+		logReport += '\r\n';
     }, 180000);
     
-	//var greet = greeting.toString();
-	//logReport += greet;
-	//logReport += '\n'
 	//enter the conversation loop
 	converse(greeting);
 	
@@ -187,7 +185,8 @@ var converse = function(elizaSays)//the main logic loop
 			var promptUser = chooseResponse('!noInput');
 			promptUser = promptUser.replace("<name>", name);
 			console.log(promptUser);
-			logReport += promptUser + "\n";
+			logReport += promptUser;
+			logReport += '\r\n';
 		}, 20000);
 		
 	rl.question(elizaSays + '\n', (answer) => {
@@ -202,11 +201,10 @@ var converse = function(elizaSays)//the main logic loop
 			process.exit();
 		}
 		else if(answer == 'maybe' && askedForCoffee == true){
-			console.log("Okay, no cream...");
-			logReport += "Okay, no cream...\n";
 			clearInterval(coffeeTimer);
-			converse("Now, what were we talking about?");
 			logReport += "Now, what were we talking about?";
+			logReport += '\r\n';
+			converse("Now, what were we talking about?");
 		}
 		else if(answer == 'log'){
 			var getDate = new Date();
